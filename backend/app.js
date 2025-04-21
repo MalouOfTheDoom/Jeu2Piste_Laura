@@ -13,6 +13,11 @@ fastify.register(fastifyStatic, {
   index: false, // pour qu'on contrôle la route /
 })
 
+// Route pour servir le frontend
+fastify.get('/', (req, reply) => {
+  reply.sendFile('index.html');  // Fichier principal à retourner
+});
+
 // Catch-all pour les routes SPA (si le fichier n'existe pas)
 fastify.setNotFoundHandler((request, reply) => {
   reply.type('text/html').sendFile('index.html') // dans frontend/dist
