@@ -6,6 +6,15 @@ services:
     autoDeploy: false
     rootDir: backend
     buildCommand: |
-      cd ../frontend && npm install && npm run build
-      npm install
-    startCommand: node app.js
+      # Navigate to the frontend and build it
+      cd frontend && npm install && npm run build
+
+      # Navigate to the backend and install dependencies
+      cd ../backend && npm install
+
+    startCommand: |
+      # Start Fastify to serve both backend API and static frontend
+      cd backend && node app.js
+
+    # Optional: Define static files path for Render to serve the static assets
+    staticPublishPath: ./backend/public
