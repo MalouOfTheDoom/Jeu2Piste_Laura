@@ -1,10 +1,10 @@
 services:
   - type: web
-    name: fastify-hello-world-example
+    name: apocalypseApp
     runtime: node
     plan: free
     autoDeploy: false
-    rootDir: backend
+    # rootDir: backend
     buildCommand: |
       # Navigate to the frontend and build it
       cd frontend && npm install && npm run build
