@@ -4,5 +4,8 @@ services:
     runtime: node
     plan: free
     autoDeploy: false
-    buildCommand: npm install
+    rootDir: backend
+    buildCommand: |
+      cd ../frontend && npm install && npm run build
+      npm install
     startCommand: node app.js
