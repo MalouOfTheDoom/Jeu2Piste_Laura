@@ -9,21 +9,15 @@
         <img class="mx-auto h-40 w-auto" src="@/assets/images/nonXLogo.png" alt="X Logo" />
       </div>
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form class="space-y-6" action="#" method="POST">
+        <form class="space-y-6">
           <div>
             <input
-              type="email"
-              name="email"
-              id="email"
               placeholder="Identifiant"
               class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
             />
           </div>
           <div>
             <input
-              type="password"
-              name="password"
-              id="password"
               placeholder="Mot de passe"
               class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
             />
@@ -82,6 +76,43 @@ const decodeToken = (token: string) => {
 
 import { onMounted } from 'vue'
 
+// onMounted(() => {
+//   const canvas = document.getElementById('matrix') as HTMLCanvasElement
+//   const ctx = canvas.getContext('2d')
+
+//   if (!ctx) return
+
+//   canvas.height = window.innerHeight
+//   canvas.width = window.innerWidth
+
+//   const letters =
+//     'アァイィウヴエカガキギクグケゲコゴサザシジスズセゼソゾタダチッヂヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+//   const fontSize = 14
+//   const columns = canvas.width / fontSize
+//   const drops = new Array(Math.floor(columns)).fill(1)
+
+//   const draw = () => {
+//     ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'
+//     ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+//     ctx.fillStyle = '#FFEA00' // Vert matrix
+//     ctx.font = `${fontSize}px monospace`
+
+//     for (let i = 0; i < drops.length; i++) {
+//       const text = letters[Math.floor(Math.random() * letters.length)]
+//       ctx.fillText(text, i * fontSize, drops[i] * fontSize)
+
+//       if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+//         drops[i] = 0
+//       }
+
+//       drops[i]++
+//     }
+//   }
+
+//   setInterval(draw, 33)
+// })
+
 onMounted(() => {
   const canvas = document.getElementById('matrix') as HTMLCanvasElement
   const ctx = canvas.getContext('2d')
@@ -93,21 +124,42 @@ onMounted(() => {
 
   const letters =
     'アァイィウヴエカガキギクグケゲコゴサザシジスズセゼソゾタダチッヂヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+
   const fontSize = 14
-  const columns = canvas.width / fontSize
-  const drops = new Array(Math.floor(columns)).fill(1)
+  const columns = Math.floor(canvas.width / fontSize)
+  const drops = new Array(columns).fill(1)
+
+  const specialSequences: Record<number, { text: string; index: number }> = {}
 
   const draw = () => {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    ctx.fillStyle = '#FFEA00' // Vert matrix
+    ctx.fillStyle = '#FFEA00'
     ctx.font = `${fontSize}px monospace`
 
     for (let i = 0; i < drops.length; i++) {
-      const text = letters[Math.floor(Math.random() * letters.length)]
-      ctx.fillText(text, i * fontSize, drops[i] * fontSize)
+      // Rare chance d'ajouter "JeSuisP." sur une colonne vide
+      if (!specialSequences[i] && Math.random() > 0.7) {
+        specialSequences[i] = { text: 'Je Suis Pascal', index: 0 }
+      }
 
+      let char
+      if (specialSequences[i]) {
+        char = specialSequences[i].text[specialSequences[i].index]
+        specialSequences[i].index++
+
+        // Supprimer une fois terminé
+        if (specialSequences[i].index >= specialSequences[i].text.length) {
+          delete specialSequences[i]
+        }
+      } else {
+        char = letters[Math.floor(Math.random() * letters.length)]
+      }
+
+      ctx.fillText(char, i * fontSize, drops[i] * fontSize)
+
+      // Remet à zéro aléatoirement
       if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
         drops[i] = 0
       }
