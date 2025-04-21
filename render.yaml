@@ -17,4 +17,4 @@ services:
       cd backend && node app.js
 
     # Optional: Define static files path for Render to serve the static assets
-    staticPublishPath: ./backend/public
+    # staticPublishPath: ./backend/public
