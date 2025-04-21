@@ -2,5 +2,13 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
+import VueAxios from 'vue-axios'
+import axios from 'axios'
 
-createApp(App).mount('#app')
+const app = createApp(App)
+
+app.use(VueAxios, axios)
+app.provide('axios', app.config.globalProperties.axios)  // provide 'axios'
+app.mount('#app')
+
+// createApp(App).mount('#app')
