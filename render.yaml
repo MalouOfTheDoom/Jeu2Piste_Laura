@@ -3,7 +3,7 @@ services:
     name: ApocalypseApp
     runtime: node
     plan: free
-    autoDeploy: false
+    autoDeploy: true
     # rootDir: backend
     buildCommand: |
       # Navigate to the frontend and build it
