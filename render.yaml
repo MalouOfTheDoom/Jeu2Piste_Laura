@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: Apocalypse
+    name: ApocalypseApp
     runtime: node
     plan: free
     autoDeploy: false
