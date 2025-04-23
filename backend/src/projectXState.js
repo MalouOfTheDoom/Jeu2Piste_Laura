@@ -1,22 +1,5 @@
-// src/projectXState.ts
-
-export type ProjectX = {
-  isStarted: boolean
-  timeStarted: number | null
-  timeDiffused: number | null
-  durationMinutes: number
-  destroyCityInterval: number
-  cities: string[]
-}
-
-export type ProjectXInfos = {
-  isTicking: boolean
-  timeRemaining: number
-  citiesDestroyed: string[]
-  totalCities: number
-}
-
-let projectX: ProjectX = {
+// projectXState.ts
+let projectX = {
   isStarted: false,
   timeStarted: null,
   timeDiffused: null,
@@ -25,24 +8,21 @@ let projectX: ProjectX = {
   cities: ['Tokyo', 'Paris', 'New York', 'Moscow', 'London'],
 }
 
-export function getProjectX(): ProjectX {
+export function getProjectX() {
   return projectX
 }
 
-export function getProjectXInfos(): ProjectXInfos {
+export function getProjectXInfos() {
   const now = Date.now()
   const timeStarted = projectX.timeStarted
   const durationMs = projectX.durationMinutes * 60 * 1000
-  const citiesDestroyed: string[] = []
-
+  const citiesDestroyed = []
   if (projectX.isStarted && timeStarted) {
     const elapsed = now - timeStarted
     const cityIntervalMs = projectX.destroyCityInterval * 60 * 1000
     const citiesToDestroy = Math.floor(elapsed / cityIntervalMs)
-
     citiesDestroyed.push(...projectX.cities.slice(0, citiesToDestroy))
   }
-
   return {
     isTicking: projectX.isStarted,
     timeRemaining:

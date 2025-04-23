@@ -15,6 +15,3 @@ services:
     startCommand: |
       # Start Fastify to serve both backend API and static frontend
       cd backend && node app.js
-
-    # Optional: Define static files path for Render to serve the static assets
-    # staticPublishPath: ./backend/public
