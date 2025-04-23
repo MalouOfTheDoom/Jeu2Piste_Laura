@@ -27,25 +27,23 @@ const knownUsers = ref<User[]>()
 const initUsers = async () => {
   knownUsers.value = [
     {
-      username: 'Sombregore',
-      passwordHash: await strHash('limacevelue'),
+      username: 'sombregore',
+      passwordHash: await strHash('malicenight'),
       role: 'user',
     },
     {
       username: 'admin',
-      passwordHash: await strHash('adminpassword1'),
+      passwordHash: await strHash('limacevelue'),
       role: 'admin',
     },
   ]
 }
 
-// Call init when the composable is used
-onMounted(() => {
-  initUsers()
-})
+await initUsers()
 
 export function useAuth() {
   const router = useRouter()
+  initUsers()
 
   // Only store these minimal creds in localStorage
   // bind object with default null value
