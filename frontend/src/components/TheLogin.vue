@@ -85,7 +85,7 @@ onMounted(() => {
     for (let i = 0; i < drops.length; i++) {
       // Rare chance d'ajouter "Je Suis Pascal" sur une colonne vide
       if (!specialSequences[i] && Math.random() > 0.9) {
-        specialSequences[i] = { text: 'Je Suis Pascal', index: 0 }
+        specialSequences[i] = { text: 'Pomodoy', index: 0 }
       }
 
       let char
