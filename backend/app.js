@@ -33,3 +33,7 @@ fastify.listen({ host, port }, (err, address) => {
     process.exit(1)
   }
 })
+
+const projectXRoutes = require('./src/routes/projectXRoutes')
+// Register your projectX routes
+fastify.register(projectXRoutes)
