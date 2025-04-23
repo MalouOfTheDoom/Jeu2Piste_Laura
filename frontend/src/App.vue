@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import TheLogin from './components/TheLogin.vue';
+import MainViewWrapper from '@/components/MainViewWrapper.vue'
 </script>
 
 <template>
   <main>
-    <TheLogin />
+    <MainViewWrapper />
   </main>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
