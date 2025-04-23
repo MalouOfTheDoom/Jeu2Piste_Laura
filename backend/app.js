@@ -5,6 +5,9 @@ import { projectXRoutes } from './src/routes/projectXRoutes.js'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 
+import dotenv from 'dotenv'
+dotenv.config()
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -14,17 +17,18 @@ const root = join(__dirname, '../frontend/dist')
 const port = Number(process.env.PORT) || 3000
 const host = 'RENDER' in process.env ? '0.0.0.0' : 'localhost'
 const app = fastify({ logger: true })
+const allowedOrigin = process.env.FRONTEND_ORIGIN || 'http://localhost:5173'
 
 // Serve static files from frontend
 app.register(fastifyStatic, {
   root: root,
-  prefix: '/', // all static routes will be accessible from /
-  index: false,
+  prefix: '/', // toutes les routes statiques sont accessibles à partir de /
+  index: false, // pour qu'on contrôle la route /
 })
 
 // Configuration CORS
 await app.register(fastifyCors, {
-  origin: ['http://localhost:5173'], // Autorise uniquement votre frontend Vue
+  origin: allowedOrigin, // Autorise uniquement votre frontend Vue
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Méthodes autorisées
 })
 
