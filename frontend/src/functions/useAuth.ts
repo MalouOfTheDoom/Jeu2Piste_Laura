@@ -1,5 +1,5 @@
 // src/composables/useAuth.ts
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useLocalStorage, useStorage, StorageSerializers } from '@vueuse/core'
 import { strHash } from '@/functions/strHash'
 import { useRouter } from 'vue-router'
@@ -21,18 +21,28 @@ type StoredCredentials = {
 // Full user object available after matching credentials
 type AuthUser = User | null
 
-const knownUsers: User[] = [
-  {
-    username: 'Sombregore',
-    passwordHash: await strHash('limacevelue'),
-    role: 'user',
-  },
-  {
-    username: 'admin',
-    passwordHash: await strHash('adminpassword1'),
-    role: 'admin',
-  },
-]
+const knownUsers = ref<User[]>()
+
+// Initialize users asynchronously
+const initUsers = async () => {
+  knownUsers.value = [
+    {
+      username: 'Sombregore',
+      passwordHash: await strHash('limacevelue'),
+      role: 'user',
+    },
+    {
+      username: 'admin',
+      passwordHash: await strHash('adminpassword1'),
+      role: 'admin',
+    },
+  ]
+}
+
+// Call init when the composable is used
+onMounted(() => {
+  initUsers()
+})
 
 export function useAuth() {
   const router = useRouter()
@@ -47,7 +57,7 @@ export function useAuth() {
   const currentUser = computed<AuthUser>(() => {
     if (!storedCreds.value) return null
     return (
-      knownUsers.find(
+      knownUsers.value?.find(
         (u) =>
           u.username === storedCreds.value?.username &&
           u.passwordHash === storedCreds.value?.passwordHash,
@@ -66,7 +76,7 @@ export function useAuth() {
     }
 
     const inputHash = await strHash(inputPassword)
-    const user = knownUsers.find(
+    const user = knownUsers.value?.find(
       (u) => u.username.toLowerCase() === inputUsername && u.passwordHash === inputHash,
     )
 
