@@ -1,18 +1,5 @@
 <template>
   <div class="p-6">
-    <h1 class="text-2xl font-bold">Project X Control Panel</h1>
-
-    <div class="mt-4">
-      <button @click="startProject" class="btn">Start ProjectX</button>
-      <button @click="cancelProject" class="btn ml-2">Cancel</button>
-      <button @click="diffuseProject" class="btn ml-2">Diffuse</button>
-    </div>
-
-    <div v-if="projectInfo" class="mt-6">
-      <h2 class="text-xl font-semibold">ProjectX Status</h2>
-      <p>{{ projectInfo }}</p>
-    </div>
-
     <!-- SECTION AFFICHAGE APOCALYPSE -->
     <div class="mt-10">
       <h2 class="text-3xl font-bold text-red-600">⚠️ Project X ⚠️</h2>
@@ -22,24 +9,49 @@
           <p class="text-lg font-medium">L'apocalypse va bientôt commencer...</p>
         </div>
         <div v-else>
-          <p class="text-lg font-medium">⏳ Temps restant avant la fin du monde :</p>
-          <p class="text-2xl font-bold my-1">
-            {{ formatTime(timeRemaining) }}
-          </p>
-
-          <p class="text-lg font-medium mt-4">🔥 Prochaine ville détruite dans :</p>
-          <p class="text-xl font-semibold my-1">
-            {{ formatTime(timeUntilNextCity) }}
-          </p>
-
-          <p class="mt-6 font-semibold">🏙️ Villes détruites :</p>
-          <ul class="list-disc list-inside">
-            <li v-for="city in projectInfo.citiesDestroyed" :key="city">{{ city }}</li>
-            <li v-if="projectInfo.citiesDestroyed.length === 0">Aucune pour l'instant.</li>
-          </ul>
+          <div class="flex flex-row justify-around items-center gap-6">
+            <div class="text-center">
+              <p class="text-lg font-medium">⏳ Temps restant avant la fin du monde :</p>
+              <p class="text-2xl font-bold my-1">
+                {{ formatTime(timeRemaining) }}
+              </p>
+            </div>
+            <div class="text-center">
+              <p class="text-lg font-medium">🔥 Prochaine ville détruite dans :</p>
+              <p class="text-2xl font-bold my-1">
+                {{ formatTime(timeUntilNextCity) }}
+              </p>
+            </div>
+          </div>
         </div>
 
-        <button class="btn mt-6" @click="diffuseProject">💣 Désamorcer la bombe</button>
+        <!-- Carte des villes détruites dans le cadre -->
+        <div class="mt-10" v-if="projectInfo">
+          <h3 class="text-xl font-bold mb-2">🗺️ Carte des villes détruites</h3>
+          <div class="relative w-full max-w-5xl mx-auto" style="aspect-ratio: 80/51" ref="mapRef">
+            <img
+              src="@/assets/images/projet-x-map.png"
+              class="absolute inset-0 w-full h-full object-contain"
+              alt="Carte"
+            />
+            <div
+              v-for="city in destroyedCities"
+              :key="city"
+              :style="computePosition(cityPositions[city].x, cityPositions[city].y)"
+              class="absolute rounded-full bg-red-600 shadow-md"
+              :class="{ explosion: true }"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-center mt-4">
+        <button
+          @click="diffuseProject"
+          class="rounded-md bg-red-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+          💣 Désamorcer la bombe
+        </button>
       </div>
     </div>
   </div>
@@ -54,6 +66,7 @@ import { onMounted } from 'vue'
 import { onUnmounted } from 'vue'
 import { watch } from 'vue'
 import sleep from '@/functions/sleep'
+import { useCityMap } from '@/functions/useCityMap'
 
 type ProjectX = {
   isStarted: boolean
@@ -148,21 +161,50 @@ watch([timeRemaining, timeUntilNextCity], async ([remaining, nextCity]) => {
 
 // #endregion
 
+// #region Map
+
+const cityPositions: Record<string, { x: number; y: number }> = {
+  //   Washington: { x: 0, y: 0 },
+  Washington: { x: 476, y: 641 },
+  //   Casablanca: { x: 1037, y: 695 },
+  //   Tripoli: { x: 1204, y: 701 },
+  //   Cairo: { x: 1349, y: 728 },
+  //   Dhaka: { x: 1828, y: 785 },
+  //   'Hong Kong': { x: 2021, y: 797 },
+  //   Santiago: { x: 526, y: 1268 },
+  //   Greenville: { x: 1025, y: 941 },
+  //   Agadez: { x: 1183, y: 821 },
+  //   Damascus: { x: 1391, y: 695 },
+  //   Astana: { x: 1676, y: 500 },
+  //   Novosibirsk: { x: 1766, y: 449 },
+}
+
+// const destroyedCities = computed(() => projectInfo.value?.citiesDestroyed ?? [])
+const destroyedCities = computed(() => [
+  'Washington',
+  //   'Casablanca',
+  //   'Tripoli',
+  //   'Cairo',
+  //   'Dhaka',
+  //   'Hong Kong',
+  //   'Santiago',
+  //   'Greenville',
+  //   'Agadez',
+  //   'Damascus',
+  //   'Astana',
+  //   'Novosibirsk',
+])
+
+const mapRef = ref<HTMLElement | null>(null)
+const { computePosition } = useCityMap(mapRef)
+
+// #endregion
+
 // #region action
 
 const fetchProjectInfo = async () => {
   const { data } = await useAxios<ProjectX>('/checkProjectXInfos', { method: 'GET' }, axiosClient)
   projectInfo.value = data.value
-}
-
-const startProject = async () => {
-  await useAxios('startProjectX', { method: 'POST' }, axiosClient)
-  fetchProjectInfo()
-}
-
-const cancelProject = async () => {
-  await useAxios('/cancelProjectX', { method: 'POST' }, axiosClient)
-  fetchProjectInfo()
 }
 
 const diffuseProject = async () => {
@@ -173,3 +215,24 @@ const diffuseProject = async () => {
 
 // #endregion
 </script>
+
+<style @scoped>
+@keyframes explosion {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(4); /* Augmentation de la taille */
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1); /* Retour à la taille d'origine */
+    opacity: 1;
+  }
+}
+
+.explosion {
+  animation: explosion 1s ease-out forwards; /* Plus long pour une meilleure explosion */
+}
+</style>

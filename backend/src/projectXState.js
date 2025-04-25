@@ -1,4 +1,17 @@
-const cities = ['Tokyo', 'Paris', 'New York', 'Moscow', 'London']
+const cities = [
+  'Washington',
+  'Casablanca',
+  'Tripoli',
+  'Cairo',
+  'Dhaka',
+  'Hong Kong',
+  'Santiago',
+  'Greenville',
+  'Agadez',
+  'Damascus',
+  'Astana',
+  'Novosibirsk',
+]
 
 // projectXState.js
 let projectX = {
@@ -7,7 +20,7 @@ let projectX = {
   timeDiffused: null,
   citiesDestroyed: [],
   durationMinutes: 60,
-  destroyCityIntervalMinutes: 0.25,
+  destroyCityIntervalMinutes: 0.05,
   totalCities: cities.length,
 }
 
