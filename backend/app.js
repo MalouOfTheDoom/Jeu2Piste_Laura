@@ -35,7 +35,7 @@ await app.register(fastifyCors, {
 await app.register(fastifyStatic, {
   root: root,
   prefix: '/',
-  decorateReply: false, // Important for SPA fallback
+  //   decorateReply: false, // Important for SPA fallback
 })
 
 // 3. Register API routes
