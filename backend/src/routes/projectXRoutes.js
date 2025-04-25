@@ -9,7 +9,7 @@ export async function projectXRoutes(fastify) {
   fastify.get('/checkProjectXInfos', async (_, reply) => {
     return getProjectXInfos()
   })
-  fastify.post('/apistartProjectX', async (_, reply) => {
+  fastify.post('/startProjectX', async (_, reply) => {
     startProjectX()
     reply.send({ success: true })
   })

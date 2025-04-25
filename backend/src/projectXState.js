@@ -1,11 +1,14 @@
-// projectXState.ts
+const cities = ['Tokyo', 'Paris', 'New York', 'Moscow', 'London']
+
+// projectXState.js
 let projectX = {
   isStarted: false,
   timeStarted: null,
   timeDiffused: null,
+  citiesDestroyed: [],
   durationMinutes: 60,
-  destroyCityInterval: 5,
-  cities: ['Tokyo', 'Paris', 'New York', 'Moscow', 'London'],
+  destroyCityIntervalMinutes: 0.25,
+  totalCities: cities.length,
 }
 
 export function getProjectX() {
@@ -15,22 +18,36 @@ export function getProjectX() {
 export function getProjectXInfos() {
   const now = Date.now()
   const timeStarted = projectX.timeStarted
-  const durationMs = projectX.durationMinutes * 60 * 1000
-  const citiesDestroyed = []
-  if (projectX.isStarted && timeStarted) {
+
+  if (projectX.isStarted && timeStarted && !projectX.timeDiffused) {
+    const cityIntervalMs = projectX.destroyCityIntervalMinutes * 60 * 1000
     const elapsed = now - timeStarted
-    const cityIntervalMs = projectX.destroyCityInterval * 60 * 1000
-    const citiesToDestroy = Math.floor(elapsed / cityIntervalMs)
-    citiesDestroyed.push(...projectX.cities.slice(0, citiesToDestroy))
+
+    // Nombre total de destructions qui auraient dû se produire
+    const totalDestructions = Math.floor(elapsed / cityIntervalMs)
+
+    // Nombre de nouvelles destructions depuis le dernier calcul
+    const newDestructions = Math.min(
+      totalDestructions - projectX.citiesDestroyed.length,
+      cities.length - projectX.citiesDestroyed.length
+    )
+
+    // Ajout des nouvelles villes détruites dans l'ordre du tableau
+    if (newDestructions > 0) {
+      const nextCities = cities
+        .filter((city) => !projectX.citiesDestroyed.includes(city))
+        .slice(0, newDestructions)
+      projectX.citiesDestroyed.push(...nextCities)
+    }
+
+    // Si toutes les villes sont détruites, on peut éventuellement désactiver le projet
+    if (projectX.citiesDestroyed.length >= cities.length) {
+      projectX.isStarted = false
+    }
   }
+
   return {
-    isTicking: projectX.isStarted,
-    timeRemaining:
-      projectX.isStarted && timeStarted
-        ? Math.max(0, Math.floor((durationMs - (now - timeStarted)) / 1000))
-        : projectX.durationMinutes * 60,
-    citiesDestroyed,
-    totalCities: projectX.cities.length,
+    ...projectX,
   }
 }
 
@@ -43,6 +60,7 @@ export function cancelProjectX() {
   projectX.isStarted = false
   projectX.timeStarted = null
   projectX.timeDiffused = null
+  projectX.citiesDestroyed = []
 }
 
 export function diffuseProjectX() {
