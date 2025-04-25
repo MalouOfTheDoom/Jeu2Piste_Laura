@@ -1,10 +1,25 @@
 <template>
   <h1 class="text-2xl font-bold">Project X Control Panel</h1>
 
-  <div class="mt-4">
-    <button @click="startProject" class="btn">Start ProjectX</button>
-    <button @click="cancelProject" class="btn ml-2">Cancel</button>
-    <button @click="diffuseProject" class="btn ml-2">Diffuse</button>
+  <div class="mt-4 flex gap-4">
+    <button
+      @click="startProject"
+      class="rounded-md bg-red-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+    >
+      Start ProjectX
+    </button>
+    <button
+      @click="cancelProject"
+      class="rounded-md bg-red-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+    >
+      Cancel
+    </button>
+    <button
+      @click="diffuseProject"
+      class="rounded-md bg-red-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+    >
+      Diffuse
+    </button>
   </div>
 </template>
 

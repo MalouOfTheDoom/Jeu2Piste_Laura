@@ -1,10 +1,10 @@
 <template>
-  <div class="p-6">
+  <div class="p-1 sm:p-6">
     <!-- SECTION AFFICHAGE APOCALYPSE -->
     <div class="mt-10">
-      <h2 class="text-3xl font-bold text-red-600">⚠️ Project X ⚠️</h2>
+      <h2 class="text-center text-3xl font-bold text-red-600">⚠️ Project X ⚠️</h2>
 
-      <div class="mt-4 p-6 border-2 border-red-500 rounded-xl bg-red-50 text-red-900">
+      <div class="mt-4 p-1 sm:p-6 border-2 border-red-500 rounded-xl bg-red-50 text-red-900">
         <div v-if="!projectInfo?.timeStarted">
           <p class="text-lg font-medium">L'apocalypse va bientôt commencer...</p>
         </div>
@@ -27,7 +27,6 @@
 
         <!-- Carte des villes détruites dans le cadre -->
         <div class="mt-10" v-if="projectInfo">
-          <h3 class="text-xl font-bold mb-2">🗺️ Carte des villes détruites</h3>
           <div class="relative w-full max-w-5xl mx-auto" style="aspect-ratio: 80/51" ref="mapRef">
             <img
               src="@/assets/images/projet-x-map.png"
