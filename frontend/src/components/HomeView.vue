@@ -1,56 +1,109 @@
 <template>
-  <div class="p-1 sm:p-6">
-    <!-- SECTION AFFICHAGE APOCALYPSE -->
-    <div class="mt-10">
-      <h2 class="text-center text-3xl font-bold text-red-600">⚠️ Project X ⚠️</h2>
+  <div class="relative min-h-screen bg-white overflow-hidden">
+    <!-- Canvas Matrix -->
+    <canvas id="matrix" class="absolute inset-0 w-full h-full z-0"></canvas>
 
-      <div class="mt-4 p-1 sm:p-6 border-2 border-red-500 rounded-xl bg-red-50 text-red-900">
-        <div v-if="!projectInfo?.timeStarted">
-          <p class="text-lg font-medium">L'apocalypse va bientôt commencer...</p>
-        </div>
-        <div v-else>
-          <div class="flex flex-row justify-around items-center gap-6">
-            <div class="text-center">
-              <p class="text-lg font-medium">⏳ Temps restant avant la fin du monde :</p>
-              <p class="text-2xl font-bold my-1">
-                {{ formatTime(timeRemaining) }}
-              </p>
+    <!-- Login Container -->
+    <div
+      class="relative z-10 flex min-h-full flex-1 flex-col justify-center px-2 lg:px-6 py-2 lg:py-4 lg:px-8"
+    >
+      <div class="p-1 lg:p-6">
+        <!-- SECTION AFFICHAGE APOCALYPSE -->
+        <div class="mt-2">
+          <div class="mt-2 flex justify-center">
+            <h3
+              class="bg-red-200 text-3xl font-extrabold text-red-700 tracking-wider drop-shadow-md animate-pulse px-4 py-1 rounded"
+            >
+              ⚠️ PROJECT X ⚠️
+            </h3>
+          </div>
+
+          <div class="mt-4 p-1 lg:p-6 border-2 border-red-500 rounded-xl bg-red-50 text-red-900">
+            <div v-if="!projectInfo?.timeStarted">
+              <p class="text-lg font-medium text-center">L'apocalypse va bientôt commencer... 😈</p>
             </div>
-            <div class="text-center">
-              <p class="text-lg font-medium">🔥 Prochaine ville détruite dans :</p>
-              <p class="text-2xl font-bold my-1">
-                {{ formatTime(timeUntilNextCity) }}
-              </p>
+
+            <div v-else-if="allCitiesDestroyed">
+              <p class="text-lg font-medium text-center">Le monde est détruit hehe 😈</p>
             </div>
+
+            <div v-else-if="projectInfo?.timeDiffused">
+              <p class="text-lg font-medium text-center">Bombes désactivées ! 😟</p>
+            </div>
+
+            <div v-else>
+              <div>
+                <div class="flex flex-row justify-around items-center gap-6">
+                  <div class="text-center">
+                    <p class="text-lg font-medium">⏳ Temps restant avant la fin du monde :</p>
+                    <p class="text-2xl font-bold my-1">
+                      {{ formatTime(timeRemaining) }}
+                    </p>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-lg font-medium">🔥 Prochaine ville détruite dans :</p>
+                    <p class="text-2xl font-bold my-1">
+                      {{ formatTime(timeUntilNextCity) }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- Carte des villes détruites dans le cadre -->
+              <div class="mt-10" v-if="projectInfo">
+                <div
+                  class="relative w-full max-w-5xl mx-auto"
+                  style="aspect-ratio: 80/51"
+                  ref="mapRef"
+                >
+                  <img
+                    src="@/assets/images/projet-x-map.png"
+                    class="absolute inset-0 w-full h-full object-contain"
+                    alt="Carte"
+                  />
+                  <div
+                    v-for="city in destroyedCities"
+                    :key="city"
+                    :style="computePosition(cityPositions[city].x, cityPositions[city].y)"
+                    class="absolute rounded-full bg-red-600 shadow-md"
+                    :class="{ explosion: true }"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-center mt-4">
+            <button
+              @click="openDisarmPopup"
+              class="rounded-md bg-red-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              💣 Désamorcer la bombe
+            </button>
           </div>
         </div>
 
-        <!-- Carte des villes détruites dans le cadre -->
-        <div class="mt-10" v-if="projectInfo">
-          <div class="relative w-full max-w-5xl mx-auto" style="aspect-ratio: 80/51" ref="mapRef">
-            <img
-              src="@/assets/images/projet-x-map.png"
-              class="absolute inset-0 w-full h-full object-contain"
-              alt="Carte"
-            />
-            <div
-              v-for="city in destroyedCities"
-              :key="city"
-              :style="computePosition(cityPositions[city].x, cityPositions[city].y)"
-              class="absolute rounded-full bg-red-600 shadow-md"
-              :class="{ explosion: true }"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="flex justify-center mt-4">
-        <button
-          @click="diffuseProject"
-          class="rounded-md bg-red-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        <!-- DISARM POPUP -->
+        <div
+          v-if="showPopup"
+          class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
         >
-          💣 Désamorcer la bombe
-        </button>
+          <div class="bg-white rounded-xl p-6 w-full max-w-sm shadow-lg space-y-4">
+            <h2 class="text-xl font-bold text-red-600">Désamorçage</h2>
+            <p>Entre le code de désactivation :</p>
+            <input
+              type="password"
+              v-model="disarmCode"
+              class="w-full border border-gray-300 rounded px-3 py-2"
+              placeholder="Code"
+            />
+            <div class="flex justify-end gap-2 mt-4">
+              <button class="px-4 py-2 rounded bg-gray-200" @click="cancelDisarm">Annuler</button>
+              <button class="px-4 py-2 rounded bg-red-600 text-white" @click="confirmDisarm">
+                Valider
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -77,7 +130,16 @@ type ProjectX = {
   totalCities: number
 }
 
-const projectInfo = ref<undefined | ProjectX>(undefined)
+// const projectInfo = ref<undefined | ProjectX>(undefined)
+const { data: projectInfo, execute: fetchProjectInfo } = useAxios<ProjectX | undefined>(
+  '/checkProjectXInfos',
+  { method: 'GET' },
+  axiosClient,
+)
+
+const allCitiesDestroyed = computed(() => {
+  return projectInfo.value?.citiesDestroyed.length === projectInfo.value?.totalCities
+})
 
 // #region Timer and auto-refetch logic
 let intervalId: ReturnType<typeof setInterval>
@@ -94,7 +156,6 @@ const setupIntervals = () => {
 }
 
 onMounted(() => {
-  fetchProjectInfo()
   setupIntervals()
 })
 
@@ -163,36 +224,35 @@ watch([timeRemaining, timeUntilNextCity], async ([remaining, nextCity]) => {
 // #region Map
 
 const cityPositions: Record<string, { x: number; y: number }> = {
-  //   Washington: { x: 0, y: 0 },
   Washington: { x: 476, y: 641 },
-  //   Casablanca: { x: 1037, y: 695 },
-  //   Tripoli: { x: 1204, y: 701 },
-  //   Cairo: { x: 1349, y: 728 },
-  //   Dhaka: { x: 1828, y: 785 },
-  //   'Hong Kong': { x: 2021, y: 797 },
-  //   Santiago: { x: 526, y: 1268 },
-  //   Greenville: { x: 1025, y: 941 },
-  //   Agadez: { x: 1183, y: 821 },
-  //   Damascus: { x: 1391, y: 695 },
-  //   Astana: { x: 1676, y: 500 },
-  //   Novosibirsk: { x: 1766, y: 449 },
+  Casablanca: { x: 1037, y: 695 },
+  Tripoli: { x: 1204, y: 701 },
+  Cairo: { x: 1349, y: 728 },
+  Dhaka: { x: 1828, y: 785 },
+  'Hong Kong': { x: 2021, y: 797 },
+  Santiago: { x: 526, y: 1268 },
+  Greenville: { x: 1025, y: 941 },
+  Agadez: { x: 1183, y: 821 },
+  Damascus: { x: 1391, y: 695 },
+  Astana: { x: 1676, y: 500 },
+  Novosibirsk: { x: 1766, y: 449 },
 }
 
-// const destroyedCities = computed(() => projectInfo.value?.citiesDestroyed ?? [])
-const destroyedCities = computed(() => [
-  'Washington',
-  //   'Casablanca',
-  //   'Tripoli',
-  //   'Cairo',
-  //   'Dhaka',
-  //   'Hong Kong',
-  //   'Santiago',
-  //   'Greenville',
-  //   'Agadez',
-  //   'Damascus',
-  //   'Astana',
-  //   'Novosibirsk',
-])
+const destroyedCities = computed(() => projectInfo.value?.citiesDestroyed ?? [])
+// const destroyedCities = computed(() => [
+//   'Washington',
+//     'Casablanca',
+//     'Tripoli',
+//     'Cairo',
+//     'Dhaka',
+//     'Hong Kong',
+//     'Santiago',
+//     'Greenville',
+//     'Agadez',
+//     'Damascus',
+//     'Astana',
+//     'Novosibirsk',
+// ])
 
 const mapRef = ref<HTMLElement | null>(null)
 const { computePosition } = useCityMap(mapRef)
@@ -201,9 +261,29 @@ const { computePosition } = useCityMap(mapRef)
 
 // #region action
 
-const fetchProjectInfo = async () => {
-  const { data } = await useAxios<ProjectX>('/checkProjectXInfos', { method: 'GET' }, axiosClient)
-  projectInfo.value = data.value
+const showPopup = ref(false)
+const disarmCode = ref('')
+
+const openDisarmPopup = () => {
+  showPopup.value = true
+  disarmCode.value = ''
+}
+
+const cancelDisarm = () => {
+  showPopup.value = false
+  disarmCode.value = ''
+}
+
+const confirmDisarm = async () => {
+  if (disarmCode.value === '1234') {
+    // Appelle ton API ici
+    console.log('Code valide, désactivation...')
+    // await useAxios('/diffuseProjectX', { method: 'POST' }, axiosClient)
+    fetchProjectInfo()
+    showPopup.value = false
+  } else {
+    alert('Code incorrect. Essaie encore !')
+  }
 }
 
 const diffuseProject = async () => {
@@ -212,6 +292,67 @@ const diffuseProject = async () => {
   //   fetchProjectInfo()
 }
 
+// #endregion
+
+// #region matrix
+
+onMounted(() => {
+  const canvas = document.getElementById('matrix') as HTMLCanvasElement
+  const ctx = canvas.getContext('2d')
+
+  if (!ctx) return
+
+  canvas.height = window.innerHeight
+  canvas.width = window.innerWidth
+
+  const letters =
+    'アァイィウヴエカガキギクグケゲコゴサザシジスズセゼソゾタダチッヂヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+
+  const fontSize = 14
+  const columns = Math.floor(canvas.width / fontSize)
+  const drops = new Array(columns).fill(1)
+
+  const specialSequences: Record<number, { text: string; index: number }> = {}
+
+  const draw = () => {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    ctx.fillStyle = '#FFEA00'
+    ctx.font = `${fontSize}px monospace`
+
+    for (let i = 0; i < drops.length; i++) {
+      // Rare chance d'ajouter "Je Suis Pascal" sur une colonne vide
+      if (!specialSequences[i] && Math.random() > 0.9) {
+        specialSequences[i] = { text: 'Pomodoy', index: 0 }
+      }
+
+      let char
+      if (specialSequences[i]) {
+        char = specialSequences[i].text[specialSequences[i].index]
+        specialSequences[i].index++
+
+        // Supprimer une fois terminé
+        if (specialSequences[i].index >= specialSequences[i].text.length) {
+          delete specialSequences[i]
+        }
+      } else {
+        char = letters[Math.floor(Math.random() * letters.length)]
+      }
+
+      ctx.fillText(char, i * fontSize, drops[i] * fontSize)
+
+      // Remet à zéro aléatoirement
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0
+      }
+
+      drops[i]++
+    }
+  }
+
+  setInterval(draw, 33)
+})
 // #endregion
 </script>
 

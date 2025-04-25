@@ -13,14 +13,16 @@ const cities = [
   'Novosibirsk',
 ]
 
+const destroyCityIntervalMinutes = 0.05
+
 // projectXState.js
 let projectX = {
   isStarted: false,
   timeStarted: null,
   timeDiffused: null,
   citiesDestroyed: [],
-  durationMinutes: 60,
-  destroyCityIntervalMinutes: 0.05,
+  destroyCityIntervalMinutes: destroyCityIntervalMinutes,
+  durationMinutes: destroyCityIntervalMinutes * cities.length,
   totalCities: cities.length,
 }
 
@@ -65,6 +67,7 @@ export function getProjectXInfos() {
 }
 
 export function startProjectX() {
+  cancelProjectX()
   projectX.isStarted = true
   projectX.timeStarted = Date.now()
 }

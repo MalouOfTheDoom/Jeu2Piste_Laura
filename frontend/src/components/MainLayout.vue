@@ -1,6 +1,6 @@
 <template>
   <div class="main-layout">
-    <header class="header-bar">
+    <header class="header-bar flex justify-between items-center px-4 py-1 bg-black text-white">
       <div class="flex gap-1">
         <span>{{ currentUser?.username }}</span>
         <span v-show="hasRole('admin')">(admin)</span>
@@ -27,12 +27,11 @@ const { logout, currentUser, hasRole } = useAuth()
 </script>
 
 <style scoped>
-.header-bar {
+/* .header-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background-color: #f0f0f0;
-  border-bottom: 1px solid #ddd;
-}
+  background-color: #4f4c4cf2;
+} */
 </style>
