@@ -10,12 +10,12 @@ const routes = [
         component: () => import('@/components/HomeView.vue'),
         meta: { roles: ['user', 'admin'] },
       },
-      {
-        path: 'admin',
-        name: 'admin',
-        component: () => import('@/components/AdminView.vue'),
-        meta: { roles: ['admin'] },
-      },
+      // {
+      //   path: 'admin',
+      //   name: 'admin',
+      //   component: () => import('@/components/AdminView.vue'),
+      //   meta: { roles: ['admin'] },
+      // },
     ],
   },
   {

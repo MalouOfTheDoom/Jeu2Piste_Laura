@@ -3,11 +3,33 @@
     <!-- Canvas Matrix -->
     <canvas id="matrix" class="absolute inset-0 w-full h-full z-0"></canvas>
 
-    <!-- Login Container -->
+    <!-- Container -->
     <div
       class="relative z-10 flex min-h-full flex-1 flex-col justify-center px-2 lg:px-6 py-2 lg:py-4 lg:px-8"
     >
       <div class="p-1 lg:p-6">
+        <!-- ADMIN CONTROL -->
+        <div
+          v-if="hasRole('admin')"
+          class="mb-6 p-6 bg-gray-800 rounded-lg shadow-xl border-2 border-red-600"
+        >
+          <h1 class="text-2xl font-bold text-white">Contrôles Admin</h1>
+          <div class="mt-4 flex gap-6">
+            <button
+              @click="startProject"
+              class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-200"
+            >
+              Start ProjectX
+            </button>
+            <button
+              @click="cancelProject"
+              class="rounded-md bg-gray-700 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-200"
+            >
+              Cancel Project X
+            </button>
+          </div>
+        </div>
+
         <!-- SECTION AFFICHAGE APOCALYPSE -->
         <div class="mt-2">
           <div class="mt-2 flex justify-center">
@@ -72,7 +94,10 @@
             </div>
           </div>
 
-          <div class="flex justify-center mt-4">
+          <div
+            class="flex justify-center mt-4"
+            v-if="projectInfo?.timeStarted && !allCitiesDestroyed && !projectInfo?.timeDiffused"
+          >
             <button
               @click="openDisarmPopup"
               class="rounded-md bg-red-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -89,13 +114,22 @@
         >
           <div class="bg-white rounded-xl p-6 w-full max-w-sm shadow-lg space-y-4">
             <h2 class="text-xl font-bold text-red-600">Désamorçage</h2>
-            <p>Entre le code de désactivation :</p>
+            <!-- City Input -->
             <input
-              type="password"
+              type="text"
+              v-model="disarmCity"
+              class="w-full border border-gray-300 rounded px-3 py-2"
+              placeholder="Ville"
+            />
+
+            <!-- Disarm Code Input -->
+            <input
+              type="text"
               v-model="disarmCode"
               class="w-full border border-gray-300 rounded px-3 py-2"
-              placeholder="Code"
+              placeholder="Code (4 chiffres)"
             />
+
             <div class="flex justify-end gap-2 mt-4">
               <button class="px-4 py-2 rounded bg-gray-200" @click="cancelDisarm">Annuler</button>
               <button class="px-4 py-2 rounded bg-red-600 text-white" @click="confirmDisarm">
@@ -119,6 +153,8 @@ import { onUnmounted } from 'vue'
 import { watch } from 'vue'
 import sleep from '@/functions/sleep'
 import { useCityMap } from '@/functions/useCityMap'
+import { useAuth } from '@/functions/useAuth'
+const { isAuthenticated, currentUser, hasRole } = useAuth()
 
 type ProjectX = {
   isStarted: boolean
@@ -263,33 +299,56 @@ const { computePosition } = useCityMap(mapRef)
 
 const showPopup = ref(false)
 const disarmCode = ref('')
+const disarmCity = ref('')
 
 const openDisarmPopup = () => {
   showPopup.value = true
-  disarmCode.value = ''
+  disarmCity.value = '' // Reset city input
+  disarmCode.value = '' // Reset code input
 }
 
 const cancelDisarm = () => {
   showPopup.value = false
+  disarmCity.value = ''
   disarmCode.value = ''
 }
 
 const confirmDisarm = async () => {
-  if (disarmCode.value === '1234') {
-    // Appelle ton API ici
-    console.log('Code valide, désactivation...')
-    // await useAxios('/diffuseProjectX', { method: 'POST' }, axiosClient)
-    fetchProjectInfo()
+  if (!disarmCity.value || !disarmCode.value) {
+    alert('Veuillez entrer le nom de la ville et le code de désactivation.')
+    return
+  }
+
+  // Send the request to the backend with city and disarm code
+  try {
+    const response = await useAxios<{ success: boolean; message?: string }>(
+      '/diffuseProjectX',
+      {
+        method: 'POST',
+        data: {
+          disarmCode: `${disarmCity.value}-${disarmCode.value}`, // Send city
+        },
+      },
+      axiosClient,
+    )
+    if (response.data.value.message) {
+      alert(response.data.value.message)
+    }
     showPopup.value = false
-  } else {
-    alert('Code incorrect. Essaie encore !')
+    fetchProjectInfo() // Fetch the updated project info
+  } catch (e: any) {
+    alert(e.response.data.message)
   }
 }
 
-const diffuseProject = async () => {
-  console.log('Tentative de désamorçage...') // TODO: appeler l’API ici plus tard
-  //   await useAxios('/diffuseProjectX', { method: 'POST' }, axiosClient)
-  //   fetchProjectInfo()
+const startProject = async () => {
+  await useAxios('startProjectX', { method: 'POST' }, axiosClient)
+  fetchProjectInfo()
+}
+
+const cancelProject = async () => {
+  await useAxios('/cancelProjectX', { method: 'POST' }, axiosClient)
+  fetchProjectInfo()
 }
 
 // #endregion

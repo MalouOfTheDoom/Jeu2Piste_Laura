@@ -1,3 +1,6 @@
+import dotenv from 'dotenv'
+dotenv.config()
+
 const cities = [
   'Washington',
   'Casablanca',
@@ -79,6 +82,37 @@ export function cancelProjectX() {
   projectX.citiesDestroyed = []
 }
 
-export function diffuseProjectX() {
-  projectX.timeDiffused = Date.now()
+const DISARM_CODE = process.env.DISARM_CODE || null // Assuming it's coming from .env
+
+export function diffuseProjectX(disarmCode) {
+  if (!DISARM_CODE) {
+    console.error('Invalid disarm code format in .env')
+    return false
+  }
+
+  // Split DISARM_CODE and input code by the dash
+  const [correctCity, correctCode] = DISARM_CODE.trim().toLowerCase().split('-')
+  const [inputCity, inputCode] = disarmCode.trim().toLowerCase().split('-')
+
+  if (!inputCity || !inputCode) {
+    console.error('Invalid input code format')
+    return false
+  }
+
+  // Case-insensitive city comparison
+  if (inputCity !== correctCity) {
+    return false
+  }
+
+  // Allow a ±3 difference in the code number
+  const correctNumber = parseInt(correctCode, 10)
+  const inputNumber = parseInt(inputCode, 10)
+  const diff = Math.abs(correctNumber - inputNumber)
+
+  if (diff <= 3) {
+    projectX.timeDiffused = Date.now() // Diffuse the project
+    return true
+  } else {
+    return false
+  }
 }

@@ -93,7 +93,8 @@ export function useAuth() {
     // return true
 
     // Redirect based on role
-    const targetRoute = user.role === 'admin' ? 'admin' : 'home'
+    // const targetRoute = user.role === 'admin' ? 'admin' : 'home'
+    const targetRoute = 'home'
     console.log(`User logged in as ${user.role}, redirecting to ${targetRoute}`)
     router.push({ name: targetRoute })
     return true
