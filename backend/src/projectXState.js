@@ -16,7 +16,8 @@ const cities = [
   'Novosibirsk',
 ]
 
-const destroyCityIntervalMinutes = 0.05
+// Make it 2min30
+const destroyCityIntervalMinutes = 2.5
 
 // projectXState.js
 let projectX = {
